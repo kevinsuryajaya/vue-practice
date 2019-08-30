@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Practice make perfect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="test.css" />
+    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <p v-if="items.length === 0">Whoops, there is no item</p>
+      <ul>
+        <li v-for="item in items">
+          {{ item
+          }}<button
+            id="show-modal"
+            class="myButton delete"
+            value="delete"
+            @click="showModal = true"
+            v-on:click="deleteItem"
+          >
+            Delete
+          </button>
+        </li>
+      </ul>
+
+      {{ newItem }}
+      <br />
+      <input type="text" placeholder="input something" v-model="newItem" />
+      <button type="button" class="myButton" v-on:click="addItem">
+        Submit
+      </button>
+      <modal v-if="showModal" @close="showModal = false">
+				<h3 slot="header">Alert</h3>
+				<h3 slot="body">Delete Successful</h3>
+      </modal>
+    </div>
+    <script>
+      Vue.component("modal", {
+        template: "#modal-template"
+      });
+      new Vue({
+        el: "#app",
+        data: {
+          items: [],
+          newItem: "",
+          showModal: false
+        },
+        methods: {
+          addItem() {
+            this.items.push(this.newItem);
+            localStorage.setItem("myItem", JSON.stringify(this.items));
+            this.newItem = "";
+          },
+          deleteItem(item) {
+            const index = this.items.indexOf(item);
+            this.items.splice(index, 1);
+            localStorage.setItem("myItem", JSON.stringify(this.items));
+          }
+        },
+        created() {
+          this.items = JSON.parse(localStorage.getItem("myItem")) || [];
+        }
+      });
+    </script>
+    <script type="text/x-template" id="modal-template">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+
+            <div class="modal-header">
+              <slot name="header">
+              </slot>
+            </div>
+
+            <div class="modal-body">
+              <slot name="body">
+              </slot>
+            </div>
+
+            <div class="modal-footer">
+              <slot name="footer">
+                <button class="modal-default-button" @click="$emit('close')">
+                  OK
+                </button>
+              </slot>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+  </body>
+</html>
